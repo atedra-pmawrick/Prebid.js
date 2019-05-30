@@ -1,4 +1,5 @@
 import * as utils from 'src/utils';
+import { ajax } from '../src/ajax'
 import { registerBidder } from '../src/adapters/bidderFactory';
 import { BANNER, VIDEO } from '../src/mediaTypes';
 import { config } from 'src/config';
@@ -55,8 +56,15 @@ export const spec = {
    * Register bidder specific code, which will execute if a bid from this bidder won the auction
    * @param {Bid} The bid that won the auction
    */
-  onBidWon: function(bid) {
-    // Bidder specific code
+  onBidWon: function(winObj) {
+    const requestId = winObj.requestId;
+    const cpm = winObj.cpm;
+    const event = winEventURLs[requestId].replace(
+      /\$\{AUCTION_PRICE\}/,
+      cpm
+    );
+
+    ajax(event, null);
     utils.logMessage('onBidWon')
   },
 
