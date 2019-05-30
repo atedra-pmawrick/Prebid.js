@@ -16,58 +16,12 @@ export const spec = {
   },
 
   buildRequests: (validBidRequests, bidderRequest) => {
-    const impressions = [];
-
-    var site = null;
-    var app = null;
-    var device = null;
-
     const request = {
-      id: bidderRequest.auctionId,
-      imp: impressions,
-      cur: config.getConfig('currency.adServerCurrency'),
-      ext: {
-        refererInfo: bidderRequest.refererInfo,
-      }
+      bidderRequest: bidderRequest,
+      bidRequests: validBidRequests,
+      adServerCurrency: config.getConfig('currency.adServerCurrency'),
+      refererInfo: bidderRequest.refererInfo
     };
-
-    validBidRequests.forEach(bid => {
-      const impression = { id: bid.bidId, ext: bid };
-      if (bid.mediaTypes.banner) {
-        const banner = {
-          id: bid.bidId,
-          format: []
-        };
-        bid.mediaTypes.banner.sizes.forEach(size => {
-          banner.format.push({ w: size[0], h: size[1] });
-        })
-        impression.banner = banner;
-      } else if (bid.mediaTypes.video) {
-        const video = utils.deepAccess(bid, 'params.video') || {};
-        impression.video = video;
-      }
-      if (utils.deepAccess(bid, 'params.site')) {
-        site = utils.deepAccess(bid, 'params.site');
-      }
-      if (utils.deepAccess(bid, 'params.app')) {
-        app = utils.deepAccess(bid, 'params.app');
-      }
-      if (utils.deepAccess(bid, 'params.device')) {
-        device = utils.deepAccess(bid, 'params.device');
-      }
-
-      impressions.push(impression)
-    })
-
-    if (site) {
-      request.site = site;
-    }
-    if (app) {
-      request.app = app;
-    }
-    if (device) {
-      request.device = device;
-    }
 
     return {
       method: 'POST',
@@ -77,38 +31,7 @@ export const spec = {
   },
 
   interpretResponse: (serverResponse, request) => {
-    utils.logMessage('interpretResponse')
-    const bidResponses = [];
-
-    let serverBidResponse = serverResponse.body;
-
-    if (serverBidResponse.seatbid) {
-      serverBidResponse.seatbid.forEach(seatbid => {
-        seatbid.bid.forEach(bid => {
-          let bidResponse = {
-            requestId: bid.impid,
-            cpm: bid.price,
-            creativeId: bid.crid,
-            dealId: bid.dealid,
-            currency: serverBidResponse.cur,
-            netRevenue: true,
-            ttl: 360
-          };
-
-          if (request.mediaType == VIDEO) {
-            bidResponse.vastUrl = bid.adm;
-          } else {
-            bidResponse.width = bid.w;
-            bidResponse.height = bid.h;
-            bidResponse.ad = bid.adm;
-          }
-
-          bidResponses.push(bidResponse);
-        })
-      })
-    }
-
-    return bidResponses;
+    return serverResponse.body;
   },
 
   getUserSyncs: (syncOptions, serverResponses) => {
