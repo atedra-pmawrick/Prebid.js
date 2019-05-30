@@ -3,6 +3,8 @@ import { registerBidder } from '../src/adapters/bidderFactory';
 import { BANNER, VIDEO } from '../src/mediaTypes';
 import { config } from 'src/config';
 
+const DOMAIN = 'rtb-dev.test.adstanding.com';
+
 export const spec = {
   code: 'adstanding',
   aliases: ['atedra'],
@@ -69,7 +71,7 @@ export const spec = {
 
     return {
       method: 'POST',
-      url: '//rtb-dev.test.adstanding.com/ssp/prebid/bid',
+      url: `//${DOMAIN}/ssp/prebid/bid`,
       data: request
     };
   },
@@ -113,7 +115,7 @@ export const spec = {
     utils.logMessage('getUserSyncs')
     return [{
       type: 'image',
-      url: '//rtb-dev.test.adstanding.com/ssp/prebid/cookie'
+      url: `//${DOMAIN}/ssp/prebid/cookie`
     }];
   },
 
